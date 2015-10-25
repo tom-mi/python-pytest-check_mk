@@ -20,7 +20,7 @@ setup(
     license='GPLv2',
     author='Thomas Reifenberger',
     tests_require=['pytest'],
-    install_requires=['pytest', 'enum34', 'pyPEG2'],
+    install_requires=['pytest'],
     author_email='tom-mi at rfnbrgr.de',
     description='pytest plugin to test check_mk checks',
     long_description=read_md('README.md'),

@@ -2,6 +2,8 @@ import os.path
 import re
 import subprocess
 
+from pytest_check_mk import MissingFileError
+
 
 _HEADER = \
 '''
@@ -36,9 +38,13 @@ special_agent_info                 = {}
 class CheckWrapper(object):
 
     def __init__(self, name, path=None):
+        __tracebackhide__ = True
         section = name.split('.')[0]
         if not path:
             path = os.path.join('checks', section)
+
+        if not os.path.exists(path):
+            raise MissingFileError(path)
 
         self.name = name
         self.section = section
@@ -57,7 +63,7 @@ class CheckWrapper(object):
         __tracebackhide__ = True
         section, info = parse_info(check_output.strip())
         if section != self.section:
-            raise ValueError('Wrong section name in test data: expected {}, got {}'.format(self.section, section))
+            raise ValueError('Wrong section name in test data: expected "{}", got "{}"'.format(self.section, section))
 
         inventory_function = self.module.check_info[self.name]['inventory_function']
         return inventory_function(info)
@@ -66,7 +72,7 @@ class CheckWrapper(object):
         __tracebackhide__ = True
         section, info = parse_info(check_output.strip())
         if section != self.section:
-            raise ValueError('Wrong section name in test data: expected {}, got {}'.format(self.section, section))
+            raise ValueError('Wrong section name in test data: expected "{}", got "{}"'.format(self.section, section))
 
         check_function = self.module.check_info[self.name]['check_function']
         return check_function(item, params, info)
@@ -171,6 +177,8 @@ def is_header(line):
 
 
 def check_module_from_source(name, path):
+    __tracebackhide__ = True
+
     import sys, imp
     source = open(path, 'r').read()
     code = compile(source, path, 'exec')
@@ -190,7 +198,7 @@ class AgentWrapper(object):
             path = os.path.join('agents', 'plugins', section)
 
         if not os.path.exists(path):
-            raise ValueError('Path {} does not exist.'.format(path))
+            raise MissingFileError(path)
 
         self.name = name
         self.section = section

@@ -4,6 +4,7 @@ from pytest_check_mk.wrapper import AgentWrapper, CheckWrapper
 
 
 def _get_check_name(request):
+    __tracebackhide__ = True
     try:
        return getattr(request.module, 'test_for')
     except AttributeError:
