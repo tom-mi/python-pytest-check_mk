@@ -1,6 +1,6 @@
 import pytest
 
-from pytest_check_mk.wrapper import AgentWrapper, CheckWrapper
+from pytest_check_mk.wrapper import AgentPluginWrapper, CheckWrapper
 
 
 def _get_check_name(request):
@@ -12,8 +12,8 @@ def _get_check_name(request):
 
 
 @pytest.fixture
-def agent(request):
-    return AgentWrapper(_get_check_name(request))
+def agent_plugin(request):
+    return AgentPluginWrapper(_get_check_name(request))
 
 
 @pytest.fixture

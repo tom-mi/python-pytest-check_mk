@@ -3,21 +3,21 @@ import stat
 
 
 @pytest.fixture
-def example_agent(testdir):
-    agent_file = testdir.mkdir('agents').mkdir('plugins').join('example')
+def example_agent_plugin(testdir):
+    agent_plugin_file = testdir.mkdir('agents').mkdir('plugins').join('example')
 
-    with agent_file.open('w') as f:
+    with agent_plugin_file.open('w') as f:
         f.write('''#!/bin/sh
 echo '<<<example>>>'
 echo 'foo 42'
 ''')
 
-    agent_file.chmod(stat.S_IRUSR | stat.S_IWUSR | stat.S_IXUSR)
+    agent_plugin_file.chmod(stat.S_IRUSR | stat.S_IWUSR | stat.S_IXUSR)
 
 
-def test_agent_fixture_fails_on_missing_check_specification(testdir):
+def test_agent_plugin_fixture_fails_on_missing_check_specification(testdir):
     testdir.makepyfile('''
-        def test_foo(agent):
+        def test_foo(agent_plugin):
             pass
     ''')
 
@@ -30,12 +30,12 @@ def test_agent_fixture_fails_on_missing_check_specification(testdir):
     ''')
 
 
-def test_agent_fixture_fails_on_missing_agent_executable(testdir):
+def test_agent_plugin_fixture_fails_on_missing_agent_plugin_executable(testdir):
     testdir.makepyfile('''
         test_for = 'example'
 
 
-        def test_foo(agent):
+        def test_foo(agent_plugin):
             pass
     ''')
 
@@ -48,13 +48,13 @@ def test_agent_fixture_fails_on_missing_agent_executable(testdir):
     ''')
 
 
-def test_agent_fixture_runs_agent(testdir, example_agent):
+def test_agent_plugin_fixture_runs_agent_plugin(testdir, example_agent_plugin):
     testdir.makepyfile('''
         test_for = 'example'
 
 
-        def test_foo(agent):
-            result = agent.run()
+        def test_foo(agent_plugin):
+            result = agent_plugin.run()
 
             assert result == '<<<example>>>\\nfoo 42\\n'
     ''')

@@ -190,7 +190,7 @@ def check_module_from_source(name, path):
     return module
 
 
-class AgentWrapper(object):
+class AgentPluginWrapper(object):
 
     def __init__(self, name, path=None):
         section = name.split('.')[0]
