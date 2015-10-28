@@ -7,9 +7,8 @@ HEADER = '''
 
 
 '''
-
 EMTPY_TEST = HEADER + '''
-        def test_foo(check):
+        def test_foo(checks):
             pass
 '''
 
@@ -26,7 +25,7 @@ def example_check(testdir):
 
 def test_check_fixture_fails_on_missing_check_specification(testdir):
     testdir.makepyfile('''
-        def test_foo(check):
+        def test_foo(checks):
             pass
     ''')
 
@@ -67,8 +66,8 @@ def test_check_fails_on_syntax_error(testdir, example_check):
 def test_has_no_perfdata(testdir, example_check):
     example_check('''check_info['example'] = {}''')
     testdir.makepyfile(HEADER + '''
-        def test_foo(check):
-            assert not check.has_perfdata
+        def test_foo(checks):
+            assert not checks['example'].has_perfdata
     ''')
 
     result = testdir.runpytest()
@@ -79,8 +78,8 @@ def test_has_no_perfdata(testdir, example_check):
 def test_has_perfdata(testdir, example_check):
     example_check('''check_info['example'] = {'has_perfdata': True}''')
     testdir.makepyfile(HEADER + '''
-        def test_foo(check):
-            assert check.has_perfdata
+        def test_foo(checks):
+            assert checks['example'].has_perfdata
     ''')
 
     result = testdir.runpytest()
@@ -91,8 +90,8 @@ def test_has_perfdata(testdir, example_check):
 def test_service_description(testdir, example_check):
     example_check('''check_info['example'] = {'service_description': 'foo %s'}''')
     testdir.makepyfile(HEADER + '''
-        def test_foo(check):
-            assert check.service_description == 'foo %s'
+        def test_foo(checks):
+            assert checks['example'].service_description == 'foo %s'
     ''')
 
     result = testdir.runpytest()
@@ -106,8 +105,8 @@ def test_inventory_fails_on_invalid_section_header(testdir, example_check):
     ''')
 
     testdir.makepyfile(HEADER + '''
-        def test_foo(check):
-            check.inventory('<<foo')
+        def test_foo(checks):
+            checks['example'].inventory('<<foo')
     ''')
 
     result = testdir.runpytest()
@@ -125,8 +124,8 @@ def test_inventory_fails_on_wrong_section_name(testdir, example_check):
     ''')
 
     testdir.makepyfile(HEADER + '''
-        def test_foo(check):
-            check.inventory('<<<something_else>>>')
+        def test_foo(checks):
+            checks['example'].inventory('<<<something_else>>>')
     ''')
 
     result = testdir.runpytest()
@@ -152,8 +151,8 @@ def test_inventory_calls_parse_info(testdir, example_check, monkeypatch):
     ''')
 
     testdir.makepyfile(HEADER + '''
-        def test_foo(check):
-            assert check.inventory('<<<example>>>\\na b') == 'foobar'
+        def test_foo(checks):
+            assert checks['example'].inventory('<<<example>>>\\na b') == 'foobar'
     ''')
 
     result = testdir.runpytest()
@@ -171,8 +170,8 @@ def test_inventory_parses_input_and_calls_inventory_function(testdir, example_ch
     ''')
 
     testdir.makepyfile(HEADER + '''
-        def test_foo(check):
-            assert check.inventory('<<<example>>>\\n1 2\\n3 4') == [2, 6]
+        def test_foo(checks):
+            assert checks['example'].inventory('<<<example>>>\\n1 2\\n3 4') == [2, 6]
     ''')
 
     result = testdir.runpytest()
@@ -194,8 +193,8 @@ def test_check_calls_parse_info(testdir, example_check, monkeypatch):
     ''')
 
     testdir.makepyfile(HEADER + '''
-        def test_foo(check):
-            assert check.check('arg1', 'arg2', '<<<example>>>\\na b') == ('arg1', 'arg2', 'foobar')
+        def test_foo(checks):
+            assert checks['example'].check('arg1', 'arg2', '<<<example>>>\\na b') == ('arg1', 'arg2', 'foobar')
     ''')
 
     result = testdir.runpytest()

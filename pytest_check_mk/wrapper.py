@@ -35,37 +35,65 @@ special_agent_info                 = {}
 '''
 
 
-class CheckWrapper(object):
+def create_check_file_wrapper(name):
+    return CheckFileWrapper(name)
+
+
+class CheckFileWrapper(object):
 
     def __init__(self, name, path=None):
-        __tracebackhide__ = True
-        section = name.split('.')[0]
         if not path:
-            path = os.path.join('checks', section)
+            path = os.path.join('checks', name)
 
         if not os.path.exists(path):
             raise MissingFileError(path)
 
         self.name = name
-        self.section = section
         self.path = path
         self.module = check_module_from_source(name, path)
 
     @property
+    def check_info(self):
+        return self.module.check_info
+
+
+    def __getitem__(self, key):
+        return CheckWrapper(self, key)
+
+
+class CheckWrapper(object):
+
+    def __init__(self, check_file, name):
+        __tracebackhide__ = True
+        section = name.split('.')[0]
+
+        if not section == check_file.name:
+            raise UsageError('Cannot create CheckWrapper for section {} with CheckFileWrapper for section {}'
+                             .format(section, check_file.name))
+
+        self.check_file = check_file
+        self.name = name
+        self.section = section
+
+    @property
+    def check_info(self):
+        return self.check_file.check_info[self.name]
+
+    @property
     def has_perfdata(self):
-        return self.module.check_info[self.name].get('has_perfdata', False)
+        return self.check_info.get('has_perfdata', False)
 
     @property
     def service_description(self):
-        return self.module.check_info[self.name]['service_description']
+        return self.check_info['service_description']
 
-    def inventory(self, check_output, ):
+    def inventory(self, check_output):
         __tracebackhide__ = True
         section, info = parse_info(check_output.strip())
         if section != self.section:
             raise ValueError('Wrong section name in test data: expected "{}", got "{}"'.format(self.section, section))
 
-        inventory_function = self.module.check_info[self.name]['inventory_function']
+        inventory_function = self.check_info['inventory_function']
         return inventory_function(info)
 
     def check(self, item, params, check_output):
@@ -74,7 +102,7 @@ class CheckWrapper(object):
         if section != self.section:
             raise ValueError('Wrong section name in test data: expected "{}", got "{}"'.format(self.section, section))
 
-        check_function = self.module.check_info[self.name]['check_function']
+        check_function = self.check_info['check_function']
         return check_function(item, params, info)
 
 
