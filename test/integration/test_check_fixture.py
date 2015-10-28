@@ -64,10 +64,10 @@ def test_check_fails_on_syntax_error(testdir, example_check):
 
 
 def test_has_no_perfdata(testdir, example_check):
-    example_check('''check_info['example'] = {}''')
+    example_check('''check_info['example.foo'] = {}''')
     testdir.makepyfile(HEADER + '''
         def test_foo(checks):
-            assert not checks['example'].has_perfdata
+            assert not checks['example.foo'].has_perfdata
     ''')
 
     result = testdir.runpytest()
@@ -76,10 +76,10 @@ def test_has_no_perfdata(testdir, example_check):
 
 
 def test_has_perfdata(testdir, example_check):
-    example_check('''check_info['example'] = {'has_perfdata': True}''')
+    example_check('''check_info['example.foo'] = {'has_perfdata': True}''')
     testdir.makepyfile(HEADER + '''
         def test_foo(checks):
-            assert checks['example'].has_perfdata
+            assert checks['example.foo'].has_perfdata
     ''')
 
     result = testdir.runpytest()
@@ -88,10 +88,10 @@ def test_has_perfdata(testdir, example_check):
 
 
 def test_service_description(testdir, example_check):
-    example_check('''check_info['example'] = {'service_description': 'foo %s'}''')
+    example_check('''check_info['example.foo'] = {'service_description': 'foo %s'}''')
     testdir.makepyfile(HEADER + '''
         def test_foo(checks):
-            assert checks['example'].service_description == 'foo %s'
+            assert checks['example.foo'].service_description == 'foo %s'
     ''')
 
     result = testdir.runpytest()
@@ -101,12 +101,12 @@ def test_service_description(testdir, example_check):
 
 def test_inventory_fails_on_invalid_section_header(testdir, example_check):
     example_check('''
-        check_info['example'] = {'inventory_function': lambda _: []}
+        check_info['example.foo'] = {'inventory_function': lambda _: []}
     ''')
 
     testdir.makepyfile(HEADER + '''
         def test_foo(checks):
-            checks['example'].inventory('<<foo')
+            checks['example.foo'].inventory('<<foo')
     ''')
 
     result = testdir.runpytest()
@@ -120,12 +120,12 @@ def test_inventory_fails_on_invalid_section_header(testdir, example_check):
 
 def test_inventory_fails_on_wrong_section_name(testdir, example_check):
     example_check('''
-        check_info['example'] = {'inventory_function': lambda _: []}
+        check_info['example.foo'] = {'inventory_function': lambda _: []}
     ''')
 
     testdir.makepyfile(HEADER + '''
         def test_foo(checks):
-            checks['example'].inventory('<<<something_else>>>')
+            checks['example.foo'].inventory('<<<something_else>>>')
     ''')
 
     result = testdir.runpytest()
@@ -147,12 +147,12 @@ def test_inventory_calls_parse_info(testdir, example_check, monkeypatch):
     monkeypatch.setattr(pytest_check_mk.wrapper, 'parse_info', mockreturn)
 
     example_check('''
-        check_info['example'] = {'inventory_function': lambda x: x}
+        check_info['example.foo'] = {'inventory_function': lambda x: x}
     ''')
 
     testdir.makepyfile(HEADER + '''
         def test_foo(checks):
-            assert checks['example'].inventory('<<<example>>>\\na b') == 'foobar'
+            assert checks['example.foo'].inventory('<<<example>>>\\na b') == 'foobar'
     ''')
 
     result = testdir.runpytest()
@@ -166,12 +166,12 @@ def test_inventory_parses_input_and_calls_inventory_function(testdir, example_ch
         def inventory(info):
             return [int(line[0]) * 2 for line in info]
 
-        check_info['example'] = {'inventory_function': inventory}
+        check_info['example.foo'] = {'inventory_function': inventory}
     ''')
 
     testdir.makepyfile(HEADER + '''
         def test_foo(checks):
-            assert checks['example'].inventory('<<<example>>>\\n1 2\\n3 4') == [2, 6]
+            assert checks['example.foo'].inventory('<<<example>>>\\n1 2\\n3 4') == [2, 6]
     ''')
 
     result = testdir.runpytest()
@@ -189,12 +189,12 @@ def test_check_calls_parse_info(testdir, example_check, monkeypatch):
     monkeypatch.setattr(pytest_check_mk.wrapper, 'parse_info', mockreturn)
 
     example_check('''
-        check_info['example'] = {'check_function': lambda x, y, z: (x, y, z)}
+        check_info['example.foo'] = {'check_function': lambda x, y, z: (x, y, z)}
     ''')
 
     testdir.makepyfile(HEADER + '''
         def test_foo(checks):
-            assert checks['example'].check('arg1', 'arg2', '<<<example>>>\\na b') == ('arg1', 'arg2', 'foobar')
+            assert checks['example.foo'].check('arg1', 'arg2', '<<<example>>>\\na b') == ('arg1', 'arg2', 'foobar')
     ''')
 
     result = testdir.runpytest()
