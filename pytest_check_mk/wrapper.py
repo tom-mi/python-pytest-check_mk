@@ -36,21 +36,17 @@ special_agent_info                 = {}
 
 
 def create_check_file_wrapper(name):
-    return CheckFileWrapper(name)
+    path = os.path.join('checks', name)
+
+    module = check_module_from_source(name, path)
+    return CheckFileWrapper(name, module)
 
 
 class CheckFileWrapper(object):
 
-    def __init__(self, name, path=None):
-        if not path:
-            path = os.path.join('checks', name)
-
-        if not os.path.exists(path):
-            raise MissingFileError(path)
-
+    def __init__(self, name, module):
         self.name = name
-        self.path = path
-        self.module = check_module_from_source(name, path)
+        self.module = module
 
     @property
     def check_info(self):
@@ -206,6 +202,9 @@ def is_header(line):
 
 def check_module_from_source(name, path):
     __tracebackhide__ = True
+
+    if not os.path.exists(path):
+        raise MissingFileError(path)
 
     import sys, imp
     source = open(path, 'r').read()
