@@ -4,7 +4,7 @@ import types
 import pytest
 
 from pytest_check_mk import MissingFileError
-from pytest_check_mk import wrapper
+from pytest_check_mk import file_loader
 
 
 @pytest.fixture
@@ -23,7 +23,7 @@ def test_check_module_from_source_fails_on_missing_file(tmpdir):
     path = str(tmpdir.join('foo'))
 
     with pytest.raises(MissingFileError):
-        wrapper.check_module_from_source(name, path)
+        file_loader.check_module_from_source(name, path)
 
 
 def test_check_module_from_source_fails_on_syntax_error(example_check):
@@ -33,7 +33,7 @@ def test_check_module_from_source_fails_on_syntax_error(example_check):
     ''')
 
     with pytest.raises(SyntaxError):
-        wrapper.check_module_from_source(name, path)
+        file_loader.check_module_from_source(name, path)
 
 
 def test_check_module_from_source_contains_empty_dicts_and_lists(example_check):
@@ -49,7 +49,7 @@ def test_check_module_from_source_contains_empty_dicts_and_lists(example_check):
         'check_config_variables',
     ]
 
-    module = wrapper.check_module_from_source(name, path)
+    module = file_loader.check_module_from_source(name, path)
 
     for dict_name in expected_dicts:
         assert hasattr(module, dict_name)
@@ -67,7 +67,7 @@ def test_check_module_from_source_can_fill_predefined_dicts_and_lists(example_ch
         check_config_variables.append('another_item')
     ''')
 
-    module = wrapper.check_module_from_source(name, path)
+    module = file_loader.check_module_from_source(name, path)
 
     assert module.check_info['foo.bar'] == {'key': 'value'}
     assert module.check_config_variables == ['another_item']
@@ -80,7 +80,7 @@ def test_check_module_from_source_contains_functions(example_check):
             return value * value
     ''')
 
-    module = wrapper.check_module_from_source(name, path)
+    module = file_loader.check_module_from_source(name, path)
 
     assert hasattr(module, 'calculate_square')
     assert type(module.calculate_square) == types.FunctionType
@@ -93,7 +93,7 @@ def test_check_module_from_source_contains_variables(example_check):
         some_value = 5
     ''')
 
-    module = wrapper.check_module_from_source(name, path)
+    module = file_loader.check_module_from_source(name, path)
 
     assert hasattr(module, 'some_value')
     assert module.some_value == 5
