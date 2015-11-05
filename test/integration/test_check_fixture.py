@@ -2,17 +2,6 @@ import pytest
 import textwrap
 
 
-HEADER = '''
-        test_for = 'example'
-
-
-'''
-EMTPY_TEST = HEADER + '''
-        def test_foo(checks):
-            pass
-'''
-
-
 @pytest.fixture
 def example_check(testdir):
     check_file = testdir.mkdir('checks').join('example')
@@ -23,7 +12,7 @@ def example_check(testdir):
     return fill_file
 
 
-def test_check_fixture_fails_on_missing_check_specification(testdir):
+def test_checks_fixture_fails_on_missing_check_specification(testdir):
     testdir.makepyfile('''
         def test_foo(checks):
             pass
@@ -38,140 +27,16 @@ def test_check_fixture_fails_on_missing_check_specification(testdir):
     ''')
 
 
-def test_check_fixture_fails_on_missing_check(testdir):
-    testdir.makepyfile(EMTPY_TEST)
+def test_checks_fixture_returns_check_file_wrapper(testdir, example_check, monkeypatch):
+    example_check('')
+    testdir.makepyfile('''
+        from pytest_check_mk.wrapper import CheckWrapper, CheckFileWrapper
 
-    result = testdir.runpytest()
+        test_for = 'example'
 
-    assert result.ret != 0
-    result.stdout.fnmatch_lines('''
-        E*MissingFileError*"checks/example" does not exist*
-        *MissingFileError
-    ''')
-
-
-def test_check_fails_on_syntax_error(testdir, example_check):
-    example_check('''print("blubb''')
-
-    testdir.makepyfile(EMTPY_TEST)
-
-    result = testdir.runpytest()
-    assert result.ret != 0
-    result.stdout.fnmatch_lines('''
-        E*SyntaxError*EOL while scanning string literal
-        *SyntaxError
-    ''')
-
-
-def test_has_no_perfdata(testdir, example_check):
-    example_check('''check_info['example.foo'] = {}''')
-    testdir.makepyfile(HEADER + '''
         def test_foo(checks):
-            assert not checks['example.foo'].has_perfdata
-    ''')
-
-    result = testdir.runpytest()
-
-    assert result.ret == 0
-
-
-def test_has_perfdata(testdir, example_check):
-    example_check('''check_info['example.foo'] = {'has_perfdata': True}''')
-    testdir.makepyfile(HEADER + '''
-        def test_foo(checks):
-            assert checks['example.foo'].has_perfdata
-    ''')
-
-    result = testdir.runpytest()
-
-    assert result.ret == 0
-
-
-def test_service_description(testdir, example_check):
-    example_check('''check_info['example.foo'] = {'service_description': 'foo %s'}''')
-    testdir.makepyfile(HEADER + '''
-        def test_foo(checks):
-            assert checks['example.foo'].service_description == 'foo %s'
-    ''')
-
-    result = testdir.runpytest()
-
-    assert result.ret == 0
-
-
-def test_inventory_fails_on_invalid_section_header(testdir, example_check):
-    example_check('''
-        check_info['example.foo'] = {'inventory_function': lambda _: []}
-    ''')
-
-    testdir.makepyfile(HEADER + '''
-        def test_foo(checks):
-            checks['example.foo'].inventory('<<foo')
-    ''')
-
-    result = testdir.runpytest()
-
-    assert result.ret != 0
-    result.stdout.fnmatch_lines('''
-        E*ValueError: Invalid header in test data*
-        *ValueError
-    ''')
-
-
-def test_inventory_fails_on_wrong_section_name(testdir, example_check):
-    example_check('''
-        check_info['example.foo'] = {'inventory_function': lambda _: []}
-    ''')
-
-    testdir.makepyfile(HEADER + '''
-        def test_foo(checks):
-            checks['example.foo'].inventory('<<<something_else>>>')
-    ''')
-
-    result = testdir.runpytest()
-
-    assert result.ret != 0
-    result.stdout.fnmatch_lines('''
-        E*ValueError: Wrong section name*
-        *ValueError
-    ''')
-
-
-def test_inventory_calls_parse_info(testdir, example_check, monkeypatch):
-    import pytest_check_mk.wrapper
-
-    calls = []
-    def mockreturn(info):
-        calls.append(info)
-        return 'example', 'foobar'
-    monkeypatch.setattr(pytest_check_mk.wrapper, 'parse_info', mockreturn)
-
-    example_check('''
-        check_info['example.foo'] = {'inventory_function': lambda x: x}
-    ''')
-
-    testdir.makepyfile(HEADER + '''
-        def test_foo(checks):
-            assert checks['example.foo'].inventory('<<<example>>>\\na b') == 'foobar'
-    ''')
-
-    result = testdir.runpytest()
-
-    assert calls == ['<<<example>>>\na b']
-    assert result.ret == 0
-
-
-def test_inventory_parses_input_and_calls_inventory_function(testdir, example_check):
-    example_check('''
-        def inventory(info):
-            return [int(line[0]) * 2 for line in info]
-
-        check_info['example.foo'] = {'inventory_function': inventory}
-    ''')
-
-    testdir.makepyfile(HEADER + '''
-        def test_foo(checks):
-            assert checks['example.foo'].inventory('<<<example>>>\\n1 2\\n3 4') == [2, 6]
+            assert isinstance(checks, CheckFileWrapper)
+            assert isinstance(checks['example'], CheckWrapper)
     ''')
 
     result = testdir.runpytest()
@@ -192,7 +57,9 @@ def test_check_calls_parse_info(testdir, example_check, monkeypatch):
         check_info['example.foo'] = {'check_function': lambda x, y, z: (x, y, z)}
     ''')
 
-    testdir.makepyfile(HEADER + '''
+    testdir.makepyfile('''
+        test_for = 'example'
+
         def test_foo(checks):
             assert checks['example.foo'].check('arg1', 'arg2', '<<<example>>>\\na b') == ('arg1', 'arg2', 'foobar')
     ''')
