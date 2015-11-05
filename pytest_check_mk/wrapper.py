@@ -73,57 +73,6 @@ class CheckWrapper(object):
         return check_function(item, params, info)
 
 
-    def assert_inventory_and_check_works_with_check_output(self, check_output):
-        # inventory
-        inventory = self.inventory(check_output)
-
-        self.assert_well_formed_inventory(inventory)
-
-        # run check for each item in inventory using default params
-        for item, default_params in inventory:
-            params = getattr(self.module, default_params)
-            result = self.check(item, params, check_output)
-            self.assert_well_formed_check_result(result)
-
-    def assert_well_formed_check_result(self, result):
-        status = result[0]
-        message = result[1]
-
-        assert isinstance(status, int)
-        assert 0 <= status <= 3
-
-        assert isinstance(message, str)
-
-        if self.has_perfdata:
-            assert len(result) == 3
-            perfdata = result[2]
-
-            for entry in perfdata:
-                self.assert_well_formed_perfdata_entry(entry)
-        else:
-            assert len(result) == 2
-
-    def assert_well_formed_perfdata_entry(self, entry):
-        assert 2 <= len(entry) <= 6
-
-        assert isinstance(entry[0], str)
-        assert type(entry[1]) in (int, float)
-        for value in entry[2:]:
-            assert (type(value) in (int, float)) or value == ''
-
-
-    def assert_well_formed_inventory(self, inventory):
-        can_have_multiple_items = '%s' in self.service_description
-
-        if not can_have_multiple_items:
-            assert len(inventory) <= 1
-
-        for item, default_params in inventory:
-            assert (item is None) != can_have_multiple_items
-            if default_params is not None:
-                assert hasattr(self.module, default_params)
-
-
 def parse_info(check_output):
     __tracebackhide__ = True
     lines = check_output.splitlines(True)
