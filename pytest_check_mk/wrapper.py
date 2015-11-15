@@ -2,6 +2,8 @@ import os.path
 import re
 import subprocess
 
+from pytest import UsageError
+
 from pytest_check_mk import MissingFileError
 from pytest_check_mk.file_loader import check_module_from_source
 
@@ -22,7 +24,6 @@ class CheckFileWrapper(object):
     @property
     def check_info(self):
         return self.module.check_info
-
 
     def __getitem__(self, key):
         return CheckWrapper(self, key)
@@ -88,7 +89,7 @@ def parse_info(check_output):
     for line in lines[1:]:
         if is_header(line.strip()):
             raise ValueError('Test data contains a second section header: {}'.format(line.strip()))
-        if not 'nostrip' in section_options:
+        if 'nostrip' not in section_options:
             line = line.strip()
         output.append(line.split(separator))
 

@@ -1,13 +1,11 @@
 import imp
 import os
-import sys
 
 
 from pytest_check_mk import MissingFileError
 
 
-_HEADER = \
-'''
+_HEADER = '''
 import sys, os, time, socket
 
 def regex(r):

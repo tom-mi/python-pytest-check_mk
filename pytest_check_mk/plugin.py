@@ -6,7 +6,7 @@ from pytest_check_mk.wrapper import AgentPluginWrapper, create_check_file_wrappe
 def _get_check_name(request):
     __tracebackhide__ = True
     try:
-       return getattr(request.module, 'test_for')
+        return getattr(request.module, 'test_for')
     except AttributeError:
         raise pytest.UsageError('Please specify the check to test with "test_for = \'my_check\'" at module level.')
 

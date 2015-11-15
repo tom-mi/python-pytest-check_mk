@@ -83,7 +83,7 @@ def test_check_module_from_source_contains_functions(example_check):
     module = file_loader.check_module_from_source(name, path)
 
     assert hasattr(module, 'calculate_square')
-    assert type(module.calculate_square) == types.FunctionType
+    assert isinstance(module.calculate_square, types.FunctionType)
     assert module.calculate_square(5) == 25
 
 

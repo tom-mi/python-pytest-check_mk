@@ -44,14 +44,10 @@ def test_checks_fixture_returns_check_file_wrapper(testdir, example_check, monke
     assert result.ret == 0
 
 
-def test_check_calls_parse_info(testdir, example_check, monkeypatch):
+def test_check_calls_parse_info(testdir, example_check, mocker):
     import pytest_check_mk.wrapper
 
-    calls = []
-    def mockreturn(info):
-        calls.append(info)
-        return 'example', 'foobar'
-    monkeypatch.setattr(pytest_check_mk.wrapper, 'parse_info', mockreturn)
+    mocker.patch('pytest_check_mk.wrapper.parse_info', return_value=('example', 'foobar'))
 
     example_check('''
         check_info['example.foo'] = {'check_function': lambda x, y, z: (x, y, z)}
@@ -66,5 +62,5 @@ def test_check_calls_parse_info(testdir, example_check, monkeypatch):
 
     result = testdir.runpytest()
 
-    assert calls == ['<<<example>>>\na b']
+    pytest_check_mk.wrapper.parse_info.assert_called_once_with('<<<example>>>\na b')
     assert result.ret == 0

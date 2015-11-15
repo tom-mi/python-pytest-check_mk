@@ -1,12 +1,11 @@
 import sys
 
 import pytest
-if sys.version_info >= (3, 3): # pragma: no cover
+from pytest_check_mk import assertions
+if sys.version_info >= (3, 3):  # pragma: no cover
     from unittest.mock import call
 else:
     from mock import call
-
-from pytest_check_mk import assertions
 
 
 def test_assert_inventory_and_check_works_with_check_output(mocker):
@@ -132,6 +131,3 @@ def test_assert_well_formed_perfdata_entry_lives_for_correct_entry(entry):
 def test_assert_well_formed_perfdata_entry_fails_for_wrong_entry(entry):
     with pytest.raises(AssertionError):
         assertions.assert_well_formed_perfdata_entry(entry)
-
-
-
