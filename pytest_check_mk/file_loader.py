@@ -16,7 +16,7 @@ def regex(r):
 
     try:
         rx = re.compile(r)
-    except Exception, e:
+    except Exception as e:
         raise AssertionError("Invalid regular expression '%s': %s" % (r, e))
     return rx
 
@@ -46,7 +46,7 @@ def check_module_from_source(name, path):
     code = compile(source, path, 'exec')
     module = imp.new_module(name)
 
-    exec _HEADER in module.__dict__
-    exec code in module.__dict__
+    exec(_HEADER, module.__dict__)
+    exec(code, module.__dict__)
 
     return module

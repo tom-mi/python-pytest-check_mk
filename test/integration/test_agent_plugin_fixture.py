@@ -56,9 +56,10 @@ def test_agent_plugin_fixture_runs_agent_plugin(testdir, example_agent_plugin):
         def test_foo(agent_plugin):
             result = agent_plugin.run()
 
-            assert result == '<<<example>>>\\nfoo 42\\n'
+            assert result == b'<<<example>>>\\nfoo 42\\n'
     ''')
 
     result = testdir.runpytest()
+    print(result.stdout)
 
     assert result.ret == 0

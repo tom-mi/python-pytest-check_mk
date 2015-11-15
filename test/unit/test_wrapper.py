@@ -50,7 +50,7 @@ def test_inventory_fails_on_wrong_section_header(checks):
     with pytest.raises(ValueError) as exc:
         checks['foo.bar'].inventory('<<<arrr>>>\n1 2')
 
-    assert 'Wrong section name in test data' in exc.value.message
+    assert 'Wrong section name in test data' in str(exc.value)
 
 
 def test_inventory_fails_on_invalid_section_header(checks):
@@ -59,7 +59,7 @@ def test_inventory_fails_on_invalid_section_header(checks):
     with pytest.raises(ValueError) as exc:
         checks['foo.bar'].inventory('<<<foo\n1 2')
 
-    assert 'Invalid header in test data' in exc.value.message
+    assert 'Invalid header in test data' in str(exc.value)
 
 
 def test_inventory_calls_parse_info_and_passes_result_to_inventory(checks, mocker):

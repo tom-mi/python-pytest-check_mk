@@ -1,6 +1,11 @@
-import pytest
+import sys
 
-from mock import call
+import pytest
+if sys.version_info >= (3, 3): # pragma: no cover
+    from unittest.mock import call
+else:
+    from mock import call
+
 from pytest_check_mk import assertions
 
 
