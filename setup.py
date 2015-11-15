@@ -17,7 +17,6 @@ setup(
     url='https://github.com/tom-mi/python-pytest-check_mk/',
     license='GPLv2',
     author='Thomas Reifenberger',
-    tests_require=['pytest'],
     install_requires=['pytest'],
     author_email='tom-mi at rfnbrgr.de',
     description='pytest plugin to test check_mk checks',
