@@ -1,0 +1,27 @@
+language: python
+python: 2.7
+env:
+  - TOXENV=py27
+  - TOXENV=py33
+  - TOXENV=py34
+install:
+  - pip install tox
+script:
+  - tox
+
+deploy:
+  provider: pypi
+  user: tom-mi
+  on:
+    tags: true
+    repo: tom-mi/python-pytest-check_mk
+  distributions: bdist_wheel
+  password:
+    secure: jZdCbFKO2zmvEETOp6PLmG0SfwZ3MbbaRfBIxq+EsbZjpkfttXHYRDKeMwAxQU0Y7SHq6FVDVEmjRb0PoF04G4Ic4XyJcjp8uHoqs1EHenQIK1EaJW0B0bctikc9hIM7mTzaglFkamsZ1HGL3orIjxft9ivFo/f2yCoZ81R+u2sgSFC5iKa+UYCHCqyP+OU/BKCNd8blhSmSc/C6rkb25YZgEIElD0NjJwGGUr5JbDxi+Inf4iibdr012i2H9yCuf1HWfaeO9/AmXYb7Axj3wuAYBan5JSOlUcQEHi26Kyx5JOSzAiTjbqhg4oIdfRpqUkMDpe1yuLHVEMsnu2GfHDPebGwiXBoHqI8KvCYcVBn3zZ2WQLvrnFD0WTJTyFkI6HX4PaG1cXoERLWmlWG3SxkoXDXSlg5dvPgqY11TiHDwjKnVBILgpU0euLOTPI5F8P3UWaOzaeSsqDcDWcl15JidVnokAO00xEXE5nK7+cF5YnTS2UgZg1Y003PoSQY4kuhy/GHQih7HCCqZTMM+40R9wTVKtayYOUeqN8hJuzsoQu49ASW9grtV/zJAj1nXJGtMtgpPLVYOkCXAH5PE+j/kndGGfAVuhlf9DgHlQs9soAlfqt9xQkOubcP/rhO1h0VoT8Smg3K+pC1714ar531FWXxOz39U7ri7b2n5ijQ=
+
+before_deploy:
+  # FIXME: Remove pandoc backport when ci version is sufficient
+  - sudo add-apt-repository -y ppa:marutter/c2d4u
+  - sudo apt-get update -qq
+  - sudo apt-get install -y pandoc
+  - pip install pypandoc
