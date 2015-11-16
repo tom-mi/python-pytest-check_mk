@@ -19,7 +19,7 @@ setup(
     author='Thomas Reifenberger',
     install_requires=['pytest'],
     author_email='tom-mi at rfnbrgr.de',
-    description='pytest plugin to test check_mk checks',
+    description='pytest plugin to test Check_MK checks',
     long_description=read_md('README.md'),
     packages=find_packages(),
     platforms='any',
