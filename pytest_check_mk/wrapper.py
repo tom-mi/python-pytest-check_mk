@@ -121,18 +121,20 @@ def is_header(line):
     return line.strip()[:3] == '<<<' and line.strip()[-3:] == '>>>'
 
 
-class AgentPluginWrapper(object):
+class AgentDirectoryWrapper(object):
 
-    def __init__(self, name, path=None):
-        section = name.split('.')[0]
-        if not path:
-            path = os.path.join('agents', 'plugins', section)
+    def __getitem__(self, key):
+        return AgentWrapper(key)
+
+
+class AgentWrapper(object):
+
+    def __init__(self, relpath):
+        path = os.path.join('agents', relpath)
 
         if not os.path.exists(path):
             raise MissingFileError(path)
 
-        self.name = name
-        self.section = section
         self.path = path
 
     def run(self, *extra_args):
