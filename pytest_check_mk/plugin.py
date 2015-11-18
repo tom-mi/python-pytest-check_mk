@@ -12,7 +12,7 @@ def _get_check_name(request):
 
 
 @pytest.fixture
-def agent(request):
+def agents(request):
     return AgentDirectoryWrapper()
 
 

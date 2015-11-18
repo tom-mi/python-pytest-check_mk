@@ -15,10 +15,10 @@ echo 'foo 42'
     agent_plugin_file.chmod(stat.S_IRUSR | stat.S_IWUSR | stat.S_IXUSR)
 
 
-def test_agent_plugin_fixture_fails_on_missing_agent_plugin_executable(testdir):
+def test_agents_fixture_fails_on_missing_agent_plugin_executable(testdir):
     testdir.makepyfile('''
-        def test_foo(agent):
-            agent['plugins/example']
+        def test_foo(agents):
+            agents['plugins/example']
     ''')
 
     result = testdir.runpytest()
@@ -30,10 +30,10 @@ def test_agent_plugin_fixture_fails_on_missing_agent_plugin_executable(testdir):
     ''')
 
 
-def test_agent_fixture_runs_agent_plugin(testdir, example_agent_plugin):
+def test_agents_fixture_runs_agent_plugin(testdir, example_agent_plugin):
     testdir.makepyfile('''
-        def test_foo(agent):
-            result = agent['plugins/example'].run()
+        def test_foo(agents):
+            result = agents['plugins/example'].run()
 
             assert result == b'<<<example>>>\\nfoo 42\\n'
     ''')
