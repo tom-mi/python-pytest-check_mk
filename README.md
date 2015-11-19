@@ -6,7 +6,7 @@ Plugin for [py.test](http://pytest.org/) to test [Check_MK](https://mathias-kett
 
 ## Usage
 
-The following example contains a test suite for the `foobar` check contained in the Check\_mk installation (see `share/doc/check_mk/skeleton_check`).
+The following example contains a test suite for the `foobar` check contained in the Check\_MK installation (see `share/doc/check_mk/skeleton_check`).
 The check file needs to be named after its agent section, i.e. `foobar`.
 
 ### Directory layout

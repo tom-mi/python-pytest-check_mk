@@ -12,7 +12,7 @@ def read_md(filename):
 
 
 setup(
-    name='pytest-check_mk',
+    name='pytest-check-mk',
     version=versioneer.get_version(),
     url='https://github.com/tom-mi/python-pytest-check_mk/',
     license='GPLv2',
