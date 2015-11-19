@@ -13,6 +13,7 @@ deploy:
   provider: pypi
   user: tom-mi
   on:
+    condition: $TOXENV == py27
     tags: true
     repo: tom-mi/python-pytest-check_mk
   distributions: bdist_wheel
