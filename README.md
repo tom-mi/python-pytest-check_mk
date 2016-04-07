@@ -23,7 +23,7 @@ The check file needs to be named after its agent section, i.e. `foobar`.
 
 All executable files in the `agents` directory can be executed with the `agents` fixture:
 
-    def test_agent_plugin(agent):
+    def test_agent_plugin(agents):
         assert agents['plugins/foobar_linux'].run() == '<<<foobar>>>\nFOO BAR\n'
 
 It is also possible to pass commandline arguments to the agent or agent plugin:
@@ -71,7 +71,7 @@ There is a sort of 'ensure everything works together' assertion. It calls both i
     test_for = 'foobar'
 
 
-    def test_check_with_agent_output(agent, checks):
+    def test_check_with_agent_output(agents, checks):
         output = agents['plugins/foobar_linux'].run()
         assert_inventory_and_check_works_with_check_output(checks['foobar'], output)
 
