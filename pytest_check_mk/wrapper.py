@@ -71,7 +71,36 @@ class CheckWrapper(object):
             raise ValueError('Wrong section name in test data: expected "{}", got "{}"'.format(self.section, section))
 
         check_function = self.check_info['check_function']
-        return check_function(item, params, info)
+        result = check_function(item, params, info)
+        return self._convert_check_result(result)
+
+    def _convert_check_result(self, result):
+        __tracebackhide__ = True
+        # Most of this function is taken from check_mk_base.convert_check_result,
+        # minus the snmp support (as this is not supported anyway as of now)
+        if type(result) == tuple:
+            return result
+        else:
+            subresults = list(result)
+            if len(subresults) == 1:
+                return subresults[0]
+
+            perfdata = []
+            infotexts = []
+            status = 0
+
+            for subresult in subresults:
+                st, text = subresult[:2]
+                if text is not None:
+                    infotexts.append(text + ["", "(!)", "(!!)", "(?)"][st])
+                    if st == 2 or status == 2:
+                        status = 2
+                    else:
+                        status = max(status, st)
+                if len(subresult) == 3:
+                    perfdata += subresult[2]
+
+            return status, ", ".join(infotexts), perfdata
 
 
 def parse_info(check_output):
